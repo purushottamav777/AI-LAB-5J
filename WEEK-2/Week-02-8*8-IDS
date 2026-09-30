@@ -81,3 +81,28 @@ def ids_solve(start_state, max_depth_limit=50):
 print("Executing Iterative Deepening Search (IDS)...")
 ids_path = ids_solve(INITIAL_STATE)
 print_solution(ids_path)
+
+Output:
+Executing Iterative Deepening Search (IDS)...
+Solution found at Depth Limit: 3
+Goal reached in 3 steps!
+
+--- Step 0 ---
+| 1 2 3 |
+| 0 4 6 |
+| 7 5 8 |
+
+--- Step 1 ---
+| 1 2 3 |
+| 4 0 6 |
+| 7 5 8 |
+
+--- Step 2 ---
+| 1 2 3 |
+| 4 5 6 |
+| 7 0 8 |
+
+--- Step 3 ---
+| 1 2 3 |
+| 4 5 6 |
+| 7 8 0 |
