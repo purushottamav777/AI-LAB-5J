@@ -1,0 +1,78 @@
+def calculate_cost(state):
+    """Calculates number of attacking pairs of queens (rows & diagonals)."""
+    cost = 0
+    n = len(state)
+    for i in range(n):
+        for j in range(i + 1, n):
+            if state[i] == state[j]:  # Same row
+                cost += 1
+            elif abs(state[i] - state[j]) == abs(i - j):  # Same diagonal
+                cost += 1
+    return cost
+
+def hill_climbing_n_queens(initial_state):
+    """Executes Hill-Climbing Search with strict index tie-breaking."""
+    current_state = list(initial_state)
+    current_cost = calculate_cost(current_state)
+    n = len(current_state)
+    
+    print(f"⚡ Start State: {current_state} | Initial Cost: {current_cost}\n")
+    iteration = 1
+    
+    while True:
+        best_neighbor = None
+        best_cost = float('inf')
+        best_swap = (float('inf'), float('inf'))
+        
+        print(f"--- Iteration {iteration} ---")
+        # Step 2 & 3: Generate neighbors via row-swaps and evaluate
+        for i in range(n):
+            for j in range(i + 1, n):
+                neighbor = list(current_state)
+                neighbor[i], neighbor[j] = neighbor[j], neighbor[i] # Swap rows
+                neighbor_cost = calculate_cost(neighbor)
+                
+                # Step 4: Strict Tie-Breaking Rule (smallest subscripts first)
+                if (neighbor_cost < best_cost) or \
+                   (neighbor_cost == best_cost and (i, j) < best_swap):
+                    best_cost = neighbor_cost
+                    best_neighbor = neighbor
+                    best_swap = (i, j)
+        
+        print(f"Best Swap Candidate: columns {best_swap} -> {best_neighbor} with Cost = {best_cost}")
+        
+        # Step 5: Termination Condition Check
+        if best_cost >= current_cost:
+            print("\n🛑 Terminated: No strictly better neighbor found (Optimal/Local minimum reached).")
+            return current_state, current_cost
+            
+        # Step 6: Update State
+        current_state = best_neighbor
+        current_cost = best_cost
+        print(f"▶️ Moving to state: {current_state} (New Current Cost = {current_cost})\n")
+        iteration += 1
+
+# --- Execution ---
+if __name__ == "__main__":
+    init_board = [3, 1, 2, 0]
+    final_state, final_cost = hill_climbing_n_queens(init_board)
+    print(f"🏆 Final Solution State: {final_state} with Cost: {final_cost}")
+
+
+
+Output
+⚡ Start State: [3, 1, 2, 0] | Initial Cost: 2
+
+--- Iteration 1 ---
+Best Swap Candidate: columns (0, 1) -> [1, 3, 2, 0] with Cost = 1
+▶️ Moving to state: [1, 3, 2, 0] (New Current Cost = 1)
+
+--- Iteration 2 ---
+Best Swap Candidate: columns (2, 3) -> [1, 3, 0, 2] with Cost = 0
+▶️ Moving to state: [1, 3, 0, 2] (New Current Cost = 0)
+
+--- Iteration 3 ---
+Best Swap Candidate: columns (0, 1) -> [3, 1, 0, 2] with Cost = 1
+
+🛑 Terminated: No strictly better neighbor found (Optimal/Local minimum reached).
+🏆 Final Solution State: [1, 3, 0, 2] with Cost: 0
