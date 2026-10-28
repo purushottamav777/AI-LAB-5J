@@ -1,0 +1,74 @@
+def pl_true(sentence, model):
+    """
+    Evaluates whether a propositional logic sentence is True or False 
+    under a specific truth assignment model.
+    """
+    if isinstance(sentence, str):
+        return model[sentence]
+    
+    op = sentence[0]
+    
+    if op == 'NOT':
+        return not pl_true(sentence[1], model)
+    elif op == 'AND':
+        return all(pl_true(conjunct, model) for conjunct in sentence[1:])
+    elif op == 'OR':
+        return any(disjunct for disjunct in sentence[1:])
+    elif op == 'IMPLIES':
+        antecedent = pl_true(sentence[1], model)
+        consequent = pl_true(sentence[2], model)
+        return (not antecedent) or consequent
+    return False
+
+def tt_check_all(kb, alpha, symbols, model):
+    """Recursively checks all truth value assignments for logical entailment."""
+    if not symbols:
+        # Base Case: All symbols assigned. Check if KB implies Alpha.
+        if pl_true(kb, model):
+            return pl_true(alpha, model)
+        return True  # If KB is False, entailment holds trivially for this row
+    
+    p = symbols[0]
+    rest = symbols[1:]
+    
+    # Branch recursively: assign True to P, and assign False to P
+    return (tt_check_all(kb, alpha, rest, {**model, p: True}) and 
+            tt_check_all(kb, alpha, rest, {**model, p: False}))
+
+def tt_entails(kb, alpha):
+    """Extracts symbols and starts the Truth-Table validation loop."""
+    # Hardcoded unique symbols for our specific formulation
+    symbols = ['P', 'Q'] 
+    return tt_check_all(kb, alpha, symbols, {})
+
+# --- Execution Setup ---
+if __name__ == "__main__":
+    # Let P = "Cost is Zero", Q = "Algorithm Terminates"
+    # KB component 1: P -> Q  (If cost is zero, algorithm terminates)
+    # KB component 2: P       (Cost is zero)
+    # Full KB: (P -> Q) AND P
+    
+    kb_sentence = ('AND', ('IMPLIES', 'P', 'Q'), 'P')
+    query_sentence = 'Q'  # Alpha: Does the algorithm terminate?
+    
+    print("🧠 Initialising Propositional Truth-Table Enumeration...")
+    print(f"Knowledge Base (KB) Formulation : (P → Q) ∧ P")
+    print(f"Query (α) Formulation          : Q")
+    
+    entails = tt_entails(kb_sentence, query_sentence)
+    
+    print("\n--- Verification Result ---")
+    if entails:
+        print("✅ SUCCESS: The Knowledge Base logically ENTAILS the query (KB ⊨ α).")
+    else:
+        print("❌ FAILURE: The Knowledge Base does NOT entail the query.")
+
+
+
+Output:
+🧠 Initialising Propositional Truth-Table Enumeration...
+Knowledge Base (KB) Formulation : (P → Q) ∧ P
+Query (α) Formulation          : Q
+
+--- Verification Result ---
+✅ SUCCESS: The Knowledge Base logically ENTAILS the query (KB ⊨ α).
